@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const formSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
       unique: true,
     },
@@ -12,15 +12,19 @@ const formSchema = new mongoose.Schema(
     step1: {
       name: String,
       username: String,
+      role: String,
+      location: String,
+      source: String,
     },
 
     step2: {
-      role: String,
-      location: String,
+      goals: [String],
     },
 
     step3: {},
-    step4: {},
+    step4: {
+        skills: [String]
+    },
     step5: {},
     step6: {},
     step7: {},
@@ -31,9 +35,9 @@ const formSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const Form = mongoose.model('Form', formSchema);
+const Form = mongoose.model("Form", formSchema);
 
 export default Form;

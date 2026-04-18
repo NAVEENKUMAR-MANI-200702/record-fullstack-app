@@ -8,21 +8,25 @@ const Login = observer(() => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    await authStore.login(email, password);
+
+    const res = await authStore.login(email, password);
+
+    if (res.success) {
+      navigate("/onboarding");
+    } else {
+      alert(res.message || "Login failed");
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-400 px-4">
       <div className="rounded-xl w-full max-w-md md:max-w-lg">
-        
         <div className="bg-white rounded-lg p-6 shadow-md">
-          <h2 className="text-start font-semibold text-gray-700 mb-6">
-            LOGIN
-          </h2>
+          <h2 className="text-start font-semibold text-gray-700 mb-6">LOGIN</h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="text-sm text-gray-600">Email</label>
               <input
@@ -68,8 +72,12 @@ const Login = observer(() => {
 
           <p className="text-center text-sm text-gray-500">
             Need an account?{" "}
-            <span className="text-blue-600 cursor-pointer hover:underline"
-            onClick={() => navigate("/signup")}>SIGN UP</span>
+            <span
+              className="text-blue-600 cursor-pointer hover:underline"
+              onClick={() => navigate("/signup")}
+            >
+              SIGN UP
+            </span>
           </p>
         </div>
       </div>
