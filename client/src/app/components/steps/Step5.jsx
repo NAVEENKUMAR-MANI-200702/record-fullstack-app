@@ -29,20 +29,19 @@ const Step5 = observer(() => {
 
   return (
     <div className="w-full max-w-md mx-auto text-center">
+      <h2 className="text-xl font-semibold mb-2">Set your profile</h2>
 
-      <h2 className="text-xl font-semibold mb-2">
-        Set your profile
-      </h2>
-
-      <p className="text-gray-500 text-sm mb-6">
-        This is important!
-      </p>
+      <p className="text-gray-500 text-sm mb-6">This is important!</p>
 
       {/* Avatar */}
       <div className="mb-4">
         <div className="w-24 h-24 mx-auto rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
           {preview ? (
-            <img src={preview} alt="preview" className="w-full h-full object-cover" />
+            <img
+              src={preview}
+              alt="preview"
+              className="w-full h-full object-cover"
+            />
           ) : (
             <span className="text-gray-400 text-sm">Preview</span>
           )}
@@ -57,7 +56,6 @@ const Step5 = observer(() => {
 
       {/* Radio */}
       <div className="text-left space-y-2 text-sm">
-
         <p className="mb-2">Are you actively looking for a job?</p>
 
         <label className="flex items-center gap-2">
@@ -79,9 +77,7 @@ const Step5 = observer(() => {
           />
           No, I'm not looking
         </label>
-
       </div>
-
     </div>
   );
 });
