@@ -1,55 +1,77 @@
 import React from "react";
+import { FileBadge } from "lucide-react";
 
 const Step3 = () => {
   return (
-    <div className="w-full max-w-3xl mx-auto">
+    <div className="w-full max-w-5xl mx-auto">
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+        {/* Main Content */}
+        <div className="flex flex-row min-h-[350px]">
+          {/* LEFT */}
+          <div className="p-5 md:w-3/5 flex flex-col justify-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">
+              You bring the curiosity.
+            </h2>
 
-      <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col md:flex-row">
+            <p className="text-red-500 font-medium mb-4">
+              We'll back it up with proof.
+            </p>
 
-        {/* LEFT CONTENT */}
-        <div className="p-6 md:w-2/3">
+            <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+              Record is built for people like you – learners, job-seekers,
+              builders.
+            </p>
 
-          <h2 className="text-lg font-semibold mb-2">
-            You bring the curiosity.
-          </h2>
+            <ul className="space-y-4 text-sm text-gray-700">
+              <li className="flex items-start gap-2">
+                <span>✔</span>
+                Earn verified skill badges from projects, courses & YouTube
+              </li>
 
-          <p className="text-red-500 font-medium mb-4">
-            We'll back it up with proof.
-          </p>
+              <li className="flex items-start gap-2">
+                <span>✔</span>
+                Take AI-powered assessments to showcase your skills
+              </li>
 
-          <p className="text-sm text-gray-500 mb-4">
-            Record is built for people like you – learners, job-seekers, builders.
-          </p>
+              <li className="flex items-start gap-2">
+                <span>✔</span>
+                Share your profile & badges publicly, like a mini portfolio
+              </li>
 
-          <ul className="space-y-3 text-sm">
+              <li className="flex items-start gap-2">
+                <span>✔</span>
+                Be visible to 200+ recruiters hiring via Record
+              </li>
+            </ul>
+          </div>
 
-            <li>✔ Earn verified skill badges from projects, courses & YouTube</li>
+          {/* RIGHT */}
+          <div className="bg-[#1F2A44] text-white p-5 md:w-2/5 flex flex-col justify-center items-start">
+            <div className="mb-6 flex justify-center align-middle w-full">
+              <FileBadge size={70} strokeWidth={1.2} />
+            </div>
 
-            <li>✔ Take AI-powered assessments to showcase your skills</li>
+            <p className="text-sm leading-relaxed text-gray-200 text-left">
+              “Through my journey spanning projects, work experience, licenses,
+              education, and even my personal YouTube learning playlist, I’ve
+              built a strong skill set. And now, I can see them all in one place
+              with Record.”
+            </p>
 
-            <li>✔ Share your profile & badges publicly, like a mini portfolio</li>
-
-            <li>✔ Be visible to 200+ recruiters hiring via Record</li>
-
-          </ul>
+            <div className="mt-6 text-center">
+              <p className="font-medium">– Arunmathavan</p>
+              <p className="text-xs text-gray-300 mt-1">
+                Mobile App Developer in NSIC
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* RIGHT SIDE */}
-        <div className="bg-blue-900 text-white p-6 md:w-1/3 flex items-center justify-center text-center">
-          <p className="text-sm">
-            “Through my journey spanning projects, work experience, licenses,
-            education, and even my personal YouTube learning playlist, I’ve built
-            a strong skill set. And now, I can see them all in one place with Record.”
-          </p>
+        {/* FOOTER */}
+        <div className="bg-black text-gray-400 text-xs py-4 text-center tracking-wide">
+          Trusted & Supported by Zoho &nbsp; AWS &nbsp; Notion &nbsp; StartupTN
         </div>
-
       </div>
-
-      {/* Footer Logos */}
-      <div className="mt-4 text-center text-xs text-gray-400">
-        Trusted & Supported by Zoho • AWS • Notion • StartupTN
-      </div>
-
     </div>
   );
 };

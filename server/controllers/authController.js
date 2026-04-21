@@ -35,13 +35,16 @@ export const registerUser = async (req, res) => {
     });
 
     return res.status(201).json(
-      APIResponse.success({
-        user: {
-          id: user._id,
-          email: user.email,
+      APIResponse.success(
+        {
+          user: {
+            id: user._id,
+            email: user.email,
+          },
+          token: generateToken(user._id),
         },
-        token: generateToken(user._id),
-      }),
+        201,
+      ),
     );
   } catch (error) {
     return res.status(500).json(APIResponse.failure(500, error.message));

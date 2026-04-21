@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
 import formStore from "../../store/formStore";
-import authStore from "../../store/authStore";
+import authStore from "../../store/auth/authStore";
 
 const Step5 = observer(() => {
-  const userId = authStore.user?.id;
+    const userId = authStore.data.response.user?._id || authStore.data.response.user?.id;
 
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);

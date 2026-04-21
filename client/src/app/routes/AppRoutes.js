@@ -4,9 +4,10 @@ import Signup from "../pages/Signup";
 import Login from "../pages/Login";
 import Onboarding from "../pages/Onboarding";
 import authStore from "../store/auth/authStore";
+import PublicRoute from "./PublicRoute";
+import PrivateRoute from "./PrivateRoute";
 
 const AppRoutes = () => {
-
   useEffect(() => {
     authStore.checkLoginStatus();
   }, []);
@@ -14,9 +15,13 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/onboarding" element={<Onboarding />} />
+      <Route element={<PublicRoute restricted={true} />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Route>
+      <Route element={<PrivateRoute />}>
+        <Route path="/onboarding" element={<Onboarding />} />
+      </Route>
     </Routes>
   );
 };

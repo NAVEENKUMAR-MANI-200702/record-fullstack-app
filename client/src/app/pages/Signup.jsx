@@ -1,16 +1,33 @@
 import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
-import authStore from "../store/authStore";
 import { useNavigate } from "react-router-dom";
+import signupStore from "../store/auth/SignupStore";
 
 const Signup = observer(() => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({ email: false, password: false });
   const navigate = useNavigate();
+
+  const validate = () => {
+    const newErrors = {
+      email: !email.trim(),
+      password: !password.trim(),
+    };
+    setErrors(newErrors);
+    return !newErrors.email && !newErrors.password;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await authStore.register(email, password);
+
+    if (!validate()) return;
+
+    const response = await signupStore.signup(email, password);
+
+    if (response?.success && response?.data?.status === 201) {
+      navigate("/login");
+    }
   };
 
   return (
@@ -26,27 +43,58 @@ const Signup = observer(() => {
               <label className="text-sm text-gray-600">Email</label>
               <input
                 type="email"
-                className="w-full border rounded-md px-3 py-2 mt-1 outline-none focus:ring-2 focus:ring-pink-400"
+                className={`w-full border rounded-md px-3 py-2 mt-1 outline-none focus:ring-2 ${
+                  errors.email
+                    ? "border-red-500 focus:ring-red-400"
+                    : "focus:ring-pink-400"
+                }`}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (errors.email)
+                    setErrors((prev) => ({ ...prev, email: false }));
+                }}
               />
+              {errors.email && (
+                <p className="text-red-500 text-xs mt-1">Email is required</p>
+              )}
             </div>
 
             <div>
               <label className="text-sm text-gray-600">Password</label>
               <input
                 type="password"
-                className="w-full border rounded-md px-3 py-2 mt-1 outline-none focus:ring-2 focus:ring-pink-400"
+                className={`w-full border rounded-md px-3 py-2 mt-1 outline-none focus:ring-2 ${
+                  errors.password
+                    ? "border-red-500 focus:ring-red-400"
+                    : "focus:ring-pink-400"
+                }`}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (errors.password)
+                    setErrors((prev) => ({ ...prev, password: false }));
+                }}
               />
+              {errors.password && (
+                <p className="text-red-500 text-xs mt-1">
+                  Password is required
+                </p>
+              )}
             </div>
+
+            {signupStore.error && (
+              <p className="text-red-500 text-sm text-center">
+                {signupStore.error}
+              </p>
+            )}
 
             <button
               type="submit"
-              className="w-full bg-pink-500 text-white py-2 rounded-md hover:bg-pink-600 transition"
+              disabled={signupStore.loading}
+              className="w-full bg-pink-500 text-white py-2 rounded-md hover:bg-pink-600 transition disabled:opacity-60"
             >
-              SIGN UP
+              {signupStore.loading ? "Creating account..." : "SIGN UP"}
             </button>
           </form>
 

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { forwardRef, useImperativeHandle } from "react";
 import formStore from "../../store/formStore";
-import authStore from "../../store/authStore";
+import authStore from "../../store/auth/authStore";
 
 const SKILLS = {
   Business: [
@@ -17,7 +17,7 @@ const SKILLS = {
 
 const Step4 = observer(
   forwardRef((props, ref) => {
-    const userId = authStore.user?.id;
+    const userId = authStore.data.response.user?._id || authStore.data.response.user?.id;
 
     const [selected, setSelected] = useState([]);
 
@@ -46,14 +46,11 @@ const Step4 = observer(
         <p className="text-gray-500 text-sm mb-4">
           Let us know what you are most curious about.
         </p>
-
-        {/* Search */}
         <input
           placeholder="Search skills (eg: figma, frontend)"
           className="w-full border px-4 py-2 rounded-md mb-4"
         />
 
-        {/* Selected Skills */}
         {selected.length > 0 && (
           <div className="mb-4">
             <div className="text-sm font-medium mb-2 text-left">

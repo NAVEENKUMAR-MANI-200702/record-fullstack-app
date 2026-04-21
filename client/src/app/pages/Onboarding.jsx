@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
+import { ChevronLeft, Sailboat } from "lucide-react";
 import formStore from "../store/formStore";
 
 import Step1 from "../components/steps/Step1";
@@ -9,83 +10,114 @@ import Step4 from "../components/steps/Step4";
 import Step5 from "../components/steps/Step5";
 import Success from "../components/steps/Success";
 
+const TOTAL_STEPS = 5;
+
 const Onboarding = observer(() => {
   const stepRef = useRef();
+
   const renderStep = () => {
     switch (formStore.currentStep) {
-      case 1:
-        return <Step1 ref={stepRef} />;
-      case 2:
-        return <Step2 ref={stepRef} />;
-      case 3:
-        return <Step3 />;
-      case 4:
-        return <Step4 ref={stepRef} />;
-      case 5:
-        return <Step5 />;
-      case 6:
-        return <Success />;
-      default:
-        return <div>Done 🎉</div>;
+      case 1: return <Step1 ref={stepRef} />;
+      case 2: return <Step2 ref={stepRef} />;
+      case 3: return <Step3 ref={stepRef} />;
+      case 4: return <Step4 ref={stepRef} />;
+      case 5: return <Step5 ref={stepRef} />;
+      case 6: return <Success />;
+      default: return null;
     }
   };
 
   const handleContinue = async () => {
+    if (formStore.currentStep >= 6 || formStore.saving) return;
     if (stepRef.current?.save) {
-      await stepRef.current.save(); // ✅ save to API
+      const saved = await stepRef.current.save();
+      if (!saved) return;
     }
+    formStore.nextStep();
+  };
 
-    formStore.nextStep(); // move next
+  const handleBack = async () => {
+    await formStore.prevStep();
   };
 
   useEffect(() => {
-    const handleKey = (e) => {
+    const handleKey = async (e) => {
       if (e.key === "Enter") {
-        formStore.nextStep();
+        e.preventDefault();
+        await handleContinue();
       }
     };
-
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, []);
+  }, [formStore.currentStep]);
+
+  const isSuccessScreen = formStore.currentStep === 6;
+  const progress = Math.round((formStore.currentStep / TOTAL_STEPS) * 100);
 
   return (
-    <div className="h-screen flex flex-col bg-white overflow-hidden">
-      <div className="w-full h-2 bg-gray-200">
-        <div
-          className="h-2 bg-blue-500 transition-all"
-          style={{ width: `${formStore.progress}%` }}
-        ></div>
-      </div>
+    <div className="h-screen flex flex-col bg-[#F9FAFB] overflow-hidden">
+      {!isSuccessScreen && (
+        <header className="w-full bg-white border-b border-gray-100 px-6 py-4 flex items-center gap-8">
+          <div className="w-24">
+            {formStore.currentStep > 1 && (
+              <button
+                onClick={handleBack}
+                disabled={formStore.loading}
+                className="flex items-center gap-1 px-3 py-1.5 border border-gray-200 bg-white rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition shadow-sm"
+              >
+                <ChevronLeft size={16} />
+                Back
+              </button>
+            )}
+          </div>
 
-      {/* 🔙 Top Nav */}
-      <div className="p-4 flex justify-between items-center">
-        {formStore.currentStep > 1 && (
-          <button
-            onClick={() => formStore.prevStep()}
-            className="text-sm text-gray-600"
-          >
-            ← Back
-          </button>
-        )}
-        <div></div>
-      </div>
+          <div className="flex-1 relative py-6">
+            <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-slate-800 transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            
+            <div 
+              className="absolute top-0 transition-all duration-500 ease-out"
+              style={{ left: `calc(${progress}% - 12px)` }}
+            >
+              <Sailboat size={20} className="text-gray-400 fill-gray-50" />
+            </div>
+          </div>
 
-      <div className="flex-1 flex items-center justify-center px-4 overflow-auto">
-        {" "}
-        {renderStep()}
-      </div>
+          <div className="w-24 flex justify-end">
+             <div className="h-10 w-10 bg-orange-500 rounded-sm" /> 
+          </div>
+        </header>
+      )}
 
-      <div className="bg-black text-white p-4 flex justify-end items-center">
-        <span className="text-sm mr-4 opacity-70">or press Enter</span>
+      <main className="flex-1 flex items-center justify-center px-4 overflow-auto">
+        <div className="w-full">
+          {renderStep()}
+        </div>
+      </main>
 
-        <button
-          onClick={handleContinue}
-          className="bg-blue-600 px-6 py-2 rounded-md"
-        >
-          Continue
-        </button>
-      </div>
+      {!isSuccessScreen && (
+        <footer className="bg-black border-t border-gray-100 p-4 flex justify-end items-center gap-6">
+          {formStore.error && (
+            <span className="text-red-500 text-sm animate-pulse">{formStore.error}</span>
+          )}
+          <div className="flex items-center gap-4">
+            <span className="text-xs text-gray-400 font-medium tracking-wide uppercase">
+              Press Enter ↵
+            </span>
+            <button
+              onClick={handleContinue}
+              disabled={formStore.saving}
+              className="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all"
+            >
+              {formStore.saving ? "Saving..." : "Continue"}
+            </button>
+          </div>
+        </footer>
+      )}
     </div>
   );
 });

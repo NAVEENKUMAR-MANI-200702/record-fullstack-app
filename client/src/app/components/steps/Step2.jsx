@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { forwardRef, useImperativeHandle } from "react";
 import formStore from "../../store/formStore";
-import authStore from "../../store/authStore";
+import authStore from "../../store/auth/authStore";
 
 const options = [
   "Build my Skill Repository",
@@ -17,14 +17,16 @@ const Step2 = observer(
   forwardRef((props, ref) => {
     const [selected, setSelected] = useState([]);
 
-    const userId = authStore.user?._id || authStore.user?.id;
+    const userId = authStore.user?.id || authStore.user?._id;
     const name = formStore.formData?.step1?.name || "User";
 
     useImperativeHandle(ref, () => ({
       async save() {
-        await formStore.saveStep(userId, "step2", {
+        const res = await formStore.saveStep("step2", {
           goals: selected,
         });
+
+        return res === true;
       },
     }));
 
@@ -48,30 +50,32 @@ const Step2 = observer(
     };
 
     return (
-      <div className="w-full">
-        <div className="flex flex-1 items-center justify-center px-4">
-          <div className="w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-2 text-center">
-              Hey {name} 👋
-            </h2>
-
-            <p className="text-gray-500 text-center mb-6 text-sm">
+      <div className="w-full flex items-center justify-center px-4 py-12 max-w-md mx-auto">
+        <div className="w-full max-w-2xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold mb-2">Hey {name} 👋</h2>
+            <p className="text-slate-500 text-sm">
               Let us know, how would you like to use Record for:
             </p>
+          </div>
 
-            <div className="text-sm font-medium mb-3">
+          <div>
+            <div className="text-lg font-semibold mb-4">
               What's your main goal?
             </div>
-
             <div className="space-y-3">
               {options.map((option, index) => (
-                <label key={index} className="flex items-center gap-2">
+                <label
+                  key={index}
+                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition"
+                >
                   <input
                     type="checkbox"
                     checked={selected.includes(option)}
                     onChange={() => toggleOption(option)}
+                    className="w-5 h-5 rounded cursor-pointer accent-black"
                   />
-                  {option}
+                  <span className="text-slate-900">{option}</span>
                 </label>
               ))}
             </div>

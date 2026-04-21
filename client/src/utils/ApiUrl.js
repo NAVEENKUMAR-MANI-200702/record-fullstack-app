@@ -2,11 +2,11 @@ import axios from "axios";
 import { SERVER_URL } from "../static/Constant";
 
 const URLS = {
+  loginValidation: `${SERVER_URL}/api/auth/isLoggedIn`,
   login: `${SERVER_URL}/api/auth/login`,
   register: `${SERVER_URL}/api/auth/register`,
   saveStep: `${SERVER_URL}/api/form/save-step`,
   getForm: (userId) => `${SERVER_URL}/api/form/${userId}`,
-  loginValidation: `${SERVER_URL}/api/auth/isLoggedIn`,
 };
 
 const MakeApiCall = async (config) => {
@@ -16,6 +16,11 @@ const MakeApiCall = async (config) => {
     "Content-Type": "application/json",
   };
   config.withCredentials = true;
+
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
 
   try {
     const response = await axios(config);

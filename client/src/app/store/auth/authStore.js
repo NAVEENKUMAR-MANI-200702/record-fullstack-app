@@ -35,7 +35,6 @@ export class AuthStore {
 
         const loggedIn =
           response?.data?.status === 200 && response?.data?.response?.isLoggedIn;
-          
         this.setState({
           isLoggedIn: loggedIn,
           userObj: loggedIn ? response.response : {},

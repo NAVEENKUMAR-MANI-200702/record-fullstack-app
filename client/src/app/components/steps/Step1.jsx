@@ -6,8 +6,25 @@ import React, {
 } from "react";
 import { observer } from "mobx-react-lite";
 import formStore from "../../store/formStore";
-import authStore from "../../store/authStore";
-import { useNavigate } from "react-router-dom";
+import { SelectField, InputField } from "../common/FormFields"; // ← import
+
+const SELECT_FIELDS = [
+  {
+    name: "role",
+    placeholder: "What best describes you?",
+    options: ["Student", "Developer", "Designer", "Entrepreneur", "Other"],
+  },
+  {
+    name: "location",
+    placeholder: "Select your location",
+    options: ["India", "USA", "UK", "Other"],
+  },
+  {
+    name: "source",
+    placeholder: "How do you know us?",
+    options: ["Google", "Friend", "Social Media", "Other"],
+  },
+];
 
 const Step1 = observer(
   forwardRef((props, ref) => {
@@ -18,41 +35,56 @@ const Step1 = observer(
       location: "",
       source: "",
     });
-
-    const navigate = useNavigate();
-
-    const userId = authStore.user?._id || authStore.user?.id;
+    const [errors, setErrors] = useState({});
 
     useImperativeHandle(ref, () => ({
+      validate() {
+        return validate();
+      },
       async save() {
-        await formStore.saveStep(userId, "step1", form);
+        if (!validate()) return false;
+        return await formStore.saveStep("step1", form);
       },
     }));
 
     useEffect(() => {
-      if (userId) {
-        formStore.fetchForm(userId);
-      }
-    }, [userId]);
+      formStore.fetchForm();
+    }, []);
 
     useEffect(() => {
       const data = formStore.formData?.step1;
-      if (data) {
-        setForm((prev) => ({ ...prev, ...data }));
-      }
+      if (data) setForm((prev) => ({ ...prev, ...data }));
     }, [formStore.formData]);
 
     const handleChange = (e) => {
-      setForm({ ...form, [e.target.name]: e.target.value });
+      const { name, value } = e.target;
+      setForm((prev) => ({ ...prev, [name]: value }));
+      if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
     };
 
-    const handleNext = async () => {
-      await formStore.saveStep(userId, "step1", form);
-      formStore.nextStep();
+    const validate = () => {
+      const newErrors = {};
+      if (!form.name.trim()) newErrors.name = "Name is required";
+      if (!form.username.trim()) newErrors.username = "Username is required";
+      if (!form.role) newErrors.role = "Please select your role";
+      if (!form.location) newErrors.location = "Please select your location";
+      if (!form.source) newErrors.source = "Please tell us how you found us";
+      setErrors(newErrors);
+      return Object.keys(newErrors).length === 0;
     };
+
+    if (formStore.loading) {
+      return (
+        <div className="w-full flex items-center justify-center py-12">
+          <p className="text-slate-400 text-sm animate-pulse">
+            Loading your data...
+          </p>
+        </div>
+      );
+    }
 
     return (
-      <div className="w-full flex items-center justify-center px-4 py-12">
+      <div className="w-full flex items-center justify-center px-4 py-12 max-w-md mx-auto">
         <div className="w-full max-w-xl mx-auto">
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-1">It's your time!</h2>
@@ -60,84 +92,54 @@ const Step1 = observer(
               Let us know about yourself first.
             </p>
           </div>
+
           <div className="space-y-4">
-            <input
+            <InputField
               name="name"
               placeholder="Your Name"
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-slate-100"
               value={form.name}
               onChange={handleChange}
+              error={errors.name}
             />
-            <input
+
+            <InputField
               name="username"
               placeholder="Your Username"
-              className="w-full border border-slate-200 rounded-xl px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-slate-100"
               value={form.username}
               onChange={handleChange}
-            />
-            <div className="flex items-center gap-2 text-xs text-slate-400 ml-1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <circle cx="12" cy="12" r="10" strokeWidth="2" />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M12 16v-4m0-4h.01"
-                />
-              </svg>
-              app.getrecord/{form.username || "username"}
-            </div>
-            <div className="relative">
-              <select
-                name="role"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-10 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-slate-100"
-                value={form.role}
-                onChange={handleChange}
-              >
-                <option value="">What best describes you?</option>
-                <option>Student</option>
-                <option>Developer</option>
-              </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                ▼
+              error={errors.username}
+            >
+              <div className="flex items-center gap-2 text-xs text-slate-400 ml-1 mt-1">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 16v-4m0-4h.01"
+                  />
+                </svg>
+                app.getrecord/{form.username || "username"}
               </div>
-            </div>
-            <div className="relative">
-              <select
-                name="location"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-10 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-slate-100"
-                value={form.location}
+            </InputField>
+
+            {SELECT_FIELDS.map(({ name, placeholder, options }) => (
+              <SelectField
+                key={name}
+                name={name}
+                placeholder={placeholder}
+                options={options}
+                value={form[name]}
                 onChange={handleChange}
-              >
-                <option value="">Select your location</option>
-                <option>India</option>
-                <option>USA</option>
-              </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                ▼
-              </div>
-            </div>
-            <div className="relative">
-              <select
-                name="source"
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 pr-10 bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-slate-100"
-                value={form.source}
-                onChange={handleChange}
-              >
-                <option value="">How do you know us?</option>
-                <option>Google</option>
-                <option>Friend</option>
-              </select>
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                ▼
-              </div>
-            </div>
+                error={errors[name]}
+              />
+            ))}
           </div>
         </div>
       </div>

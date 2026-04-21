@@ -11,8 +11,8 @@ class APIResponse {
     this.response = response;
   }
 
-  static success(data = null) {
-    return new APIResponse(this.OK, "success", data);
+  static success(data = null, status = 200) {
+    return new APIResponse(status, "success", data);
   }
 
   static failure(status, message, data = null) {

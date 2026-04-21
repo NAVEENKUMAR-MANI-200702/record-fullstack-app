@@ -1,11 +1,12 @@
-import Form from '../models/Form.js';
+import Form from "../models/Form.js";
+import APIResponse from "../utils/APIResponse.js";
 
 export const saveStep = async (req, res) => {
   try {
     const { userId, step, data } = req.body;
 
     if (!userId || !step || !data) {
-      return res.status(400).json({ message: 'Missing fields' });
+      return res.status(400).json(APIResponse.failure(400, "Missing fields"));
     }
 
     let form = await Form.findOne({ userId });
@@ -18,12 +19,17 @@ export const saveStep = async (req, res) => {
 
     await form.save();
 
-    res.json({
-      message: `${step} saved successfully`,
-      form,
-    });
+    return res.status(200).json(
+      APIResponse.success(
+        {
+          message: `${step} saved successfully`,
+          form,
+        },
+        200,
+      ),
+    );
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json(APIResponse.failure(500, error.message));
   }
 };
 
@@ -34,11 +40,11 @@ export const getForm = async (req, res) => {
     const form = await Form.findOne({ userId });
 
     if (!form) {
-      return res.json({});
+      return res.status(200).json(APIResponse.success({}, 200));
     }
 
-    res.json(form);
+    return res.status(200).json(APIResponse.success(form, 200));
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json(APIResponse.failure(500, error.message));
   }
 };
