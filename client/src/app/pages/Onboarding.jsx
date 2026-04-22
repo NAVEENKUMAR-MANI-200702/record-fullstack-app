@@ -71,61 +71,68 @@ const Onboarding = observer(() => {
   return (
     <div className="h-screen flex flex-col bg-[#F9FAFB] overflow-hidden">
       {!isSuccessScreen && (
-        <header className="w-full bg-white border-b border-gray-100 px-6 py-4 flex items-center gap-8">
-          <div className="w-24">
+        <header className="w-full bg-white border-b border-gray-100 px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-8">
+          {/* Back Button */}
+          <div className="w-16 sm:w-24 shrink-0">
             {formStore.currentStep > 1 && (
               <button
                 onClick={handleBack}
                 disabled={formStore.loading}
-                className="flex items-center gap-1 px-3 py-1.5 border border-gray-200 bg-white rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition shadow-sm"
+                className="flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 border border-gray-200 bg-white rounded-lg text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-50 transition shadow-sm"
               >
-                <ChevronLeft size={16} />
-                Back
+                <ChevronLeft size={14} className="sm:w-4 sm:h-4" />
+                <span>Back</span>
               </button>
             )}
           </div>
 
-          <div className="flex-1 relative py-6">
-            <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+          {/* Progress Track */}
+          <div className="flex-1 relative py-4 sm:py-6">
+            <div className="h-1 sm:h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-slate-800 transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
-
             <div
               className="absolute top-0 transition-all duration-500 ease-out"
               style={{ left: `calc(${progress}% - 12px)` }}
             >
-              <Sailboat size={20} className="text-gray-400 fill-gray-50" />
+              <Sailboat
+                size={16}
+                className="text-gray-400 fill-gray-50 sm:w-5 sm:h-5"
+              />
             </div>
           </div>
 
-          <div className="w-24 flex justify-end">
-            <div className="h-10 w-10 bg-orange-500 rounded-sm" />
+          {/* Logo */}
+          <div className="w-16 sm:w-24 shrink-0 flex justify-end">
+            <div className="h-8 w-8 sm:h-10 sm:w-10 bg-orange-500 rounded-sm" />
           </div>
         </header>
       )}
-
       <main className="flex-1 flex items-center justify-center px-4 overflow-auto">
         <div className="w-full">{renderStep()}</div>
       </main>
 
       {!isSuccessScreen && (
-        <footer className="bg-black border-t border-gray-100 p-4 flex justify-end items-center gap-6">
+        <footer className="bg-black border-t border-gray-100 p-3 sm:p-4 flex justify-end items-center gap-3 sm:gap-6">
           {formStore.error && (
-            <span className="text-red-500 text-sm animate-pulse">
+            <span className="text-red-500 text-xs sm:text-sm animate-pulse">
               {formStore.error}
             </span>
           )}
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-gray-400 font-medium tracking-wide uppercase">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <span className="text-xs text-gray-400 font-medium tracking-wide uppercase hidden sm:block">
               Press Enter ↵
             </span>
             <button
               onClick={handleContinue}
               disabled={formStore.saving}
-              className="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all"
+              className="bg-blue-600 text-white 
+          px-4 py-1.5 text-sm          
+          sm:px-8 sm:py-2.5 sm:text-base
+          rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all"
             >
               {formStore.saving ? "Saving..." : "Continue"}
             </button>

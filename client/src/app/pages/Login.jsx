@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import loginStore from "../store/auth/LoginStore";
+import authStore from "../store/auth/authStore";
 
 const Login = observer(() => {
   const [email, setEmail] = useState("");
@@ -27,6 +28,7 @@ const Login = observer(() => {
 
     if (response?.success && response?.data?.status === 200) {
       navigate("/onboarding");
+      authStore.checkLoginStatus();
     }
   };
 

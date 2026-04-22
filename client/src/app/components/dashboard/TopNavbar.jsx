@@ -28,6 +28,7 @@ const TopNavbar = observer(() => {
   const handleLogout = () => {
     authStore.reset?.();
     localStorage.clear();
+    authStore.checkLoginStatus();
     navigate("/login");
   };
 
