@@ -1,9 +1,19 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { MakeApiCall, URLS } from "../../utils/ApiUrl";
 
+const isEqual = (a, b) => {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  try {
+    return JSON.stringify(a) === JSON.stringify(b);
+  } catch {
+    return false;
+  }
+};
+
 class FormStore {
   currentStep = 1;
-  TOTAL_STEPS = 8;
+  TOTAL_STEPS = 6;
   formData = {};
   loading = false;
   saving = false;
@@ -14,31 +24,35 @@ class FormStore {
     makeAutoObservable(this, {}, { autoBind: true });
 
     const savedUser = localStorage.getItem("user");
-    const savedStep = localStorage.getItem("currentStep");
-
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
         this.userId = parsed._id || parsed.id;
-        console.log("FormStore rehydrated userId:", this.userId);
       } catch (e) {
         console.error("Failed to parse user from localStorage:", e);
       }
-    }
-
-    if (savedStep) {
-      this.currentStep = Number(savedStep);
     }
   }
 
   nextStep() {
     if (this.currentStep < this.TOTAL_STEPS) {
       this.currentStep++;
-      localStorage.setItem("currentStep", this.currentStep);
     }
   }
 
+  prevStep() {
+    if (this.currentStep <= 1) return;
+    this.currentStep--;
+  }
+
   async saveStep(stepKey, stepData) {
+    const existing = this.formData[stepKey];
+
+    if (isEqual(existing, stepData)) {
+      console.log(`[${stepKey}] No changes detected, skipping save.`);
+      return true;
+    }
+
     this.saving = true;
     this.error = null;
 
@@ -64,29 +78,6 @@ class FormStore {
     return response?.success && response?.data?.status === 200;
   }
 
-  async prevStep() {
-    if (this.currentStep <= 1) return;
-
-    this.loading = true;
-    this.error = null;
-
-    const response = await MakeApiCall({
-      url: URLS.getForm(this.userId),
-      method: "GET",
-    });
-
-    runInAction(() => {
-      this.loading = false;
-      if (response?.success && response?.data?.status === 200) {
-        this.formData = response.data.response || {};
-        this.currentStep--;
-        localStorage.setItem("currentStep", this.currentStep);
-      } else {
-        this.error = response?.data?.message || "Failed to fetch form data";
-      }
-    });
-  }
-
   async fetchForm() {
     if (!this.userId) return;
 
@@ -108,6 +99,18 @@ class FormStore {
     });
   }
 
+  async completeOnboarding() {
+    const res = await MakeApiCall({
+      url: URLS.completeForm,
+      method: "PUT",
+      data: {
+        userId: this.userId,
+      },
+    });
+
+    return res?.success;
+  }
+
   getStepData(step) {
     return this.formData[`step${step}`] || {};
   }
@@ -125,8 +128,7 @@ class FormStore {
       this.error = null;
       this.userId = null;
     });
-    localStorage.removeItem("currentStep");
-    localStorage.removeItem("userId");
+    localStorage.removeItem("user");
   }
 }
 

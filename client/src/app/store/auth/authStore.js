@@ -3,9 +3,11 @@ import { MakeApiCall, URLS } from "../../../utils/ApiUrl";
 
 export class AuthStore {
   isLoggedIn = false;
+  isOnboardingCompleted = false;
   loading = true;
   error = null;
   userObj = {};
+  userDetails = {};
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -34,13 +36,16 @@ export class AuthStore {
         console.log("Login Validation Response:", response);
 
         const loggedIn =
-          response?.data?.status === 200 && response?.data?.response?.isLoggedIn;
+          response?.data?.status === 200 &&
+          response?.data?.response?.isLoggedIn;
+
         this.setState({
           isLoggedIn: loggedIn,
-          userObj: loggedIn ? response.response : {},
+          userObj: loggedIn ? response.data.response.user : {},
+          isOnboardingCompleted: response?.data?.response?.completed || false,
+          userDetails: loggedIn ? response?.data?.response : {},
         });
-
-        this.setAuthToken(loggedIn ? response?.response?.memberId : null);
+        this.setAuthToken(loggedIn ? response?.data?.response?.token : null);
       });
     } catch (error) {
       this.setState({

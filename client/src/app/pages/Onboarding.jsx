@@ -9,21 +9,30 @@ import Step3 from "../components/steps/Step3";
 import Step4 from "../components/steps/Step4";
 import Step5 from "../components/steps/Step5";
 import Success from "../components/steps/Success";
+import skillsStore from "../store/SkillsStore";
+import { TOTAL_STEPS_LIMIT } from "../../static/Constant";
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = TOTAL_STEPS_LIMIT;
 
 const Onboarding = observer(() => {
   const stepRef = useRef();
 
   const renderStep = () => {
     switch (formStore.currentStep) {
-      case 1: return <Step1 ref={stepRef} />;
-      case 2: return <Step2 ref={stepRef} />;
-      case 3: return <Step3 ref={stepRef} />;
-      case 4: return <Step4 ref={stepRef} />;
-      case 5: return <Step5 ref={stepRef} />;
-      case 6: return <Success />;
-      default: return null;
+      case 1:
+        return <Step1 ref={stepRef} />;
+      case 2:
+        return <Step2 ref={stepRef} />;
+      case 3:
+        return <Step3 ref={stepRef} />;
+      case 4:
+        return <Step4 ref={stepRef} />;
+      case 5:
+        return <Step5 ref={stepRef} />;
+      case 6:
+        return <Success />;
+      default:
+        return null;
     }
   };
 
@@ -50,6 +59,11 @@ const Onboarding = observer(() => {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [formStore.currentStep]);
+
+  useEffect(() => {
+    formStore.fetchForm();
+    skillsStore.fetchSkills();
+  }, []);
 
   const isSuccessScreen = formStore.currentStep === 6;
   const progress = Math.round((formStore.currentStep / TOTAL_STEPS) * 100);
@@ -78,8 +92,8 @@ const Onboarding = observer(() => {
                 style={{ width: `${progress}%` }}
               />
             </div>
-            
-            <div 
+
+            <div
               className="absolute top-0 transition-all duration-500 ease-out"
               style={{ left: `calc(${progress}% - 12px)` }}
             >
@@ -88,21 +102,21 @@ const Onboarding = observer(() => {
           </div>
 
           <div className="w-24 flex justify-end">
-             <div className="h-10 w-10 bg-orange-500 rounded-sm" /> 
+            <div className="h-10 w-10 bg-orange-500 rounded-sm" />
           </div>
         </header>
       )}
 
       <main className="flex-1 flex items-center justify-center px-4 overflow-auto">
-        <div className="w-full">
-          {renderStep()}
-        </div>
+        <div className="w-full">{renderStep()}</div>
       </main>
 
       {!isSuccessScreen && (
         <footer className="bg-black border-t border-gray-100 p-4 flex justify-end items-center gap-6">
           {formStore.error && (
-            <span className="text-red-500 text-sm animate-pulse">{formStore.error}</span>
+            <span className="text-red-500 text-sm animate-pulse">
+              {formStore.error}
+            </span>
           )}
           <div className="flex items-center gap-4">
             <span className="text-xs text-gray-400 font-medium tracking-wide uppercase">

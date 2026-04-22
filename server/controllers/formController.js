@@ -48,3 +48,34 @@ export const getForm = async (req, res) => {
     return res.status(500).json(APIResponse.failure(500, error.message));
   }
 };
+
+export const markCompleted = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json(APIResponse.failure(400, "User ID is required"));
+    }
+
+    const form = await Form.findOneAndUpdate(
+      { userId },
+      { completed: true },
+      { new: true },
+    );
+
+    if (!form) {
+      return res.status(404).json(APIResponse.failure(404, "Form not found"));
+    }
+
+    return res.json(
+      APIResponse.success({
+        message: "Onboarding completed",
+        form,
+      }),
+    );
+  } catch (error) {
+    return res.status(500).json(APIResponse.failure(500, error.message));
+  }
+};

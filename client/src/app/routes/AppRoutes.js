@@ -1,4 +1,4 @@
-import React, { use, useEffect } from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Signup from "../pages/Signup";
 import Login from "../pages/Login";
@@ -6,6 +6,7 @@ import Onboarding from "../pages/Onboarding";
 import authStore from "../store/auth/authStore";
 import PublicRoute from "./PublicRoute";
 import PrivateRoute from "./PrivateRoute";
+import Dashboard from "../pages/Dashboard";
 
 const AppRoutes = () => {
   useEffect(() => {
@@ -21,6 +22,7 @@ const AppRoutes = () => {
       </Route>
       <Route element={<PrivateRoute />}>
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Route>
     </Routes>
   );

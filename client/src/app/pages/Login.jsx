@@ -81,11 +81,6 @@ const Login = observer(() => {
               )}
             </div>
 
-            <div className="flex items-center text-sm">
-              <input type="checkbox" className="mr-2" />
-              Remember me?
-            </div>
-
             {loginStore.error && (
               <p className="text-red-500 text-sm text-center">
                 {loginStore.error}

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { forwardRef, useImperativeHandle } from "react";
 import formStore from "../../store/formStore";
-import authStore from "../../store/auth/authStore";
 
 const options = [
   "Build my Skill Repository",
@@ -17,7 +16,6 @@ const Step2 = observer(
   forwardRef((props, ref) => {
     const [selected, setSelected] = useState([]);
 
-    const userId = authStore.user?.id || authStore.user?._id;
     const name = formStore.formData?.step1?.name || "User";
 
     useImperativeHandle(ref, () => ({

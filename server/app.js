@@ -1,12 +1,10 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import formRoutes from "./routes/formRoutes.js";
-
-dotenv.config();
+import skillRoutes from "./routes/skillRoutes.js";
 
 const app = express();
 
@@ -32,5 +30,6 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/form", formRoutes);
+app.use("/api/skills", skillRoutes);
 
 export default app;

@@ -1,7 +1,8 @@
-import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import APIResponse from "../utils/APIResponse.js";
+import User from "../models/User.js";
+import Form from "../models/Form.js";
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -92,10 +93,16 @@ export const loginUser = async (req, res) => {
 };
 
 export const isLoggedIn = async (req, res) => {
+  const form = await Form.findOne({ userId: req.user.id });
+
   return res.json(
     APIResponse.success({
       isLoggedIn: true,
       user: req.user,
+      completed: form?.completed || false,
+      imageUrl: form?.step5?.imageUrl || null,
+      name: form?.step1?.name || null,
+      username: form?.step1?.username || null,
     }),
   );
 };

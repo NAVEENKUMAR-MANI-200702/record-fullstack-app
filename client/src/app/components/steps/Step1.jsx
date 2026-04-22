@@ -6,7 +6,7 @@ import React, {
 } from "react";
 import { observer } from "mobx-react-lite";
 import formStore from "../../store/formStore";
-import { SelectField, InputField } from "../common/FormFields"; // ← import
+import { SelectField, InputField } from "../ui/FormFields";
 
 const SELECT_FIELDS = [
   {
@@ -48,10 +48,6 @@ const Step1 = observer(
     }));
 
     useEffect(() => {
-      formStore.fetchForm();
-    }, []);
-
-    useEffect(() => {
       const data = formStore.formData?.step1;
       if (data) setForm((prev) => ({ ...prev, ...data }));
     }, [formStore.formData]);
@@ -84,8 +80,8 @@ const Step1 = observer(
     }
 
     return (
-      <div className="w-full flex items-center justify-center px-4 py-12 max-w-md mx-auto">
-        <div className="w-full max-w-xl mx-auto">
+      <div className="w-full px-4 sm:px-6 md:px-8 py-8 sm:py-12">
+        <div className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto">
           <div className="mb-8">
             <h2 className="text-2xl font-bold mb-1">It's your time!</h2>
             <p className="text-slate-500 text-sm">

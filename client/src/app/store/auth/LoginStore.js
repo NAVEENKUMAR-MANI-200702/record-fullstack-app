@@ -25,14 +25,13 @@ export class LoginStore {
     runInAction(() => {
       this.loading = false;
       if (response?.success && response?.data?.status === 200) {
-        const { token, user } = response.data.response; // ← destructure from response
+        const { token, user } = response.data.response;
 
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
 
         this.loginData = user;
         const userId = user?._id || user?.id;
-        formStore.init(userId);
       } else {
         this.error =
           response?.data?.message || response?.message || "Login failed";

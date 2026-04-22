@@ -5,9 +5,7 @@ const Step3 = () => {
   return (
     <div className="w-full max-w-5xl mx-auto">
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-        {/* Main Content */}
         <div className="flex flex-row min-h-[350px]">
-          {/* LEFT */}
           <div className="p-5 md:w-3/5 flex flex-col justify-center">
             <h2 className="text-xl font-semibold text-gray-900 mb-1">
               You bring the curiosity.
@@ -45,7 +43,6 @@ const Step3 = () => {
             </ul>
           </div>
 
-          {/* RIGHT */}
           <div className="bg-[#1F2A44] text-white p-5 md:w-2/5 flex flex-col justify-center items-start">
             <div className="mb-6 flex justify-center align-middle w-full">
               <FileBadge size={70} strokeWidth={1.2} />
@@ -67,7 +64,6 @@ const Step3 = () => {
           </div>
         </div>
 
-        {/* FOOTER */}
         <div className="bg-black text-gray-400 text-xs py-4 text-center tracking-wide">
           Trusted & Supported by Zoho &nbsp; AWS &nbsp; Notion &nbsp; StartupTN
         </div>
