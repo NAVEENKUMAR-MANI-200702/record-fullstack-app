@@ -58,20 +58,29 @@ export class AuthStore {
           isOnboardingCompleted: response?.data?.response?.completed || false,
           userDetails: loggedIn ? response?.data?.response : {},
         });
+
         this.setAuthToken(loggedIn ? response?.data?.response?.token : null);
-        const id =
-          response.data.response.user._id || response.data.response.user.id;
-        formStore.setUserId(id);
+
+        if (loggedIn) {
+          const id =
+            response.data.response.user._id || response.data.response.user.id;
+          formStore.setUserId(id);
+        }
       });
     } catch (error) {
-      this.setState({
-        isLoggedIn: false,
-        error: error.response?.response?.message || "Network error occurred.",
-        userObj: {},
+      runInAction(() => {
+        this.setState({
+          isLoggedIn: false,
+          error: error.response?.response?.message || "Network error occurred.",
+          userObj: {},
+        });
+
+        this.setAuthToken(null);
       });
-      this.setAuthToken(null);
     } finally {
-      this.setState({ loading: false });
+      runInAction(() => {
+        this.loading = false;
+      });
     }
   }
 }
