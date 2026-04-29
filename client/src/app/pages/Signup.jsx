@@ -31,8 +31,6 @@ const Signup = observer(() => {
   const handleGoogleLogin = () => {
     openGoogleLogin(async (code) => {
       localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      authStore.setUser(null);
       const res = await signupStore.googleLogin(code);
 
       console.log("GOOGLE RES:", res);

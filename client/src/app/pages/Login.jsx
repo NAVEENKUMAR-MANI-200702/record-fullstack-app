@@ -26,10 +26,6 @@ const Login = observer(() => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    authStore.setUser(null);
-
     if (!validate()) return;
 
     const response = await loginStore.login(email, password);
@@ -42,9 +38,6 @@ const Login = observer(() => {
 
   const handleGoogleLogin = () => {
     openGoogleLogin(async (code) => {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      authStore.setUser(null);
 
       const res = await signupStore.googleLogin(code);
 
