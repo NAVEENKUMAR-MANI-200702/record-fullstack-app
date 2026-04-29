@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import signupStore from "../store/auth/SignupStore";
@@ -16,9 +16,7 @@ const Signup = observer(() => {
     password: false,
     username: false,
   });
-
   const navigate = useNavigate();
-  const isProcessingGoogle = useRef(false);
 
   const validate = () => {
     const newErrors = {
@@ -30,38 +28,29 @@ const Signup = observer(() => {
     return !newErrors.email && !newErrors.password && !newErrors.username;
   };
 
-  const handleGoogleAuthSuccess = async (code) => {
-    if (isProcessingGoogle.current) return;
-    isProcessingGoogle.current = true;
-
-    try {
+  const handleGoogleLogin = () => {
+    openGoogleLogin(async (code) => {
       const res = await signupStore.googleLogin(code);
+
+      console.log("GOOGLE RES:", res);
 
       if (res?.success) {
         const { user, token } = res.data;
 
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-
+        
         authStore.setUser(user);
+        authStore?.checkLoginStatus();
 
-        console.log("Signup Google User:", user);
-
-        navigate(user?.isOnboarded ? "/dashboard" : "/onboarding");
+        navigate("/onboarding");
       }
-    } finally {
-      isProcessingGoogle.current = false;
-    }
-  };
-
-  const handleGoogleLogin = () => {
-    openGoogleLogin((code) => {
-      handleGoogleAuthSuccess(code);
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!validate()) return;
 
     const response = await signupStore.signup(username, email, password);
@@ -70,30 +59,6 @@ const Signup = observer(() => {
       navigate("/login");
     }
   };
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-
-    if (code && !window.opener) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-
-      handleGoogleAuthSuccess(code);
-      return;
-    }
-
-    const handleMessage = (event) => {
-      if (event.data?.type === "GOOGLE_AUTH_SUCCESS") {
-        handleGoogleAuthSuccess(event.data.code);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-400 px-4">
@@ -118,7 +83,6 @@ const Signup = observer(() => {
                 error={errors.username && "Username is required"}
               />
             </div>
-
             <div>
               <label className="text-sm text-gray-600">Email</label>
               <InputField
@@ -177,11 +141,13 @@ const Signup = observer(() => {
               onClick={handleGoogleLogin}
               className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 shadow-sm hover:bg-gray-100 transition"
             >
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                alt="google"
-                className="w-5 h-5"
-              />
+              <span className="text-lg font-bold text-red-500">
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="google"
+                  className="w-5 h-5"
+                />
+              </span>
             </button>
           </div>
 

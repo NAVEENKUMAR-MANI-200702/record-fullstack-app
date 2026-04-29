@@ -1,61 +1,27 @@
-import React, { useEffect } from "react";
+import React ,{ useEffect }from "react";
 
 const AuthCallback = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
-    const error = params.get("error");
 
-    console.log("🔥 CALLBACK PAGE LOADED");
-    console.log("Code:", code);
-    console.log("Error:", error);
+    console.log("Callback loaded, code:", code);
+     console.log("🔥 CALLBACK PAGE LOADED");
 
-    if (error) {
-      if (window.opener) {
-        window.opener.postMessage(
-          {
-            type: "GOOGLE_AUTH_ERROR",
-            error,
-          },
-          "*",
-        );
-        window.close();
-      } else {
-        window.location.href = `/login?error=${error}`;
-      }
-      return;
-    }
+    if (code && window.opener) {
+      window.opener.postMessage(
+        {
+          type: "GOOGLE_AUTH_SUCCESS",
+          code,
+        },
+        "*"
+      );
 
-    if (code) {
-      if (window.opener) {
-        window.opener.postMessage(
-          {
-            type: "GOOGLE_AUTH_SUCCESS",
-            code,
-          },
-          "*",
-        );
-        window.close();
-      }
-      else {
-        window.location.href = `/login?code=${code}`;
-      }
+      window.close();
     }
   }, []);
 
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        fontFamily: "sans-serif",
-      }}
-    >
-      <h2>Signing you in with Google...</h2>
-    </div>
-  );
+  return <h1 style={{ color: "black" }}>Callback Working</h1>;
 };
 
 export default AuthCallback;

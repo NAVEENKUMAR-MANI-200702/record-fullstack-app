@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import loginStore from "../store/auth/LoginStore";
@@ -13,7 +13,6 @@ const Login = observer(() => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: false, password: false });
   const navigate = useNavigate();
-  const isProcessingGoogle = useRef(false);
 
   const validate = () => {
     const newErrors = {
@@ -24,11 +23,23 @@ const Login = observer(() => {
     return !newErrors.email && !newErrors.password;
   };
 
-  const handleGoogleAuthSuccess = async (code) => {
-    if (isProcessingGoogle.current) return;
-    isProcessingGoogle.current = true;
+  const handleLogin = async (e) => {
+    e.preventDefault();
 
-    try {
+    if (!validate()) return;
+
+    const response = await loginStore.login(email, password);
+
+    if (response?.success && response?.data?.status === 200) {
+      navigate("/onboarding");
+      authStore.checkLoginStatus();
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    openGoogleLogin(async (code) => {
+      console.log("AUTH CODE:", code);
+
       const res = await signupStore.googleLogin(code);
 
       if (res?.success) {
@@ -38,55 +49,11 @@ const Login = observer(() => {
         localStorage.setItem("user", JSON.stringify(user));
 
         authStore.setUser(user);
-        console.log("FINAL USER:", user);
-
-        navigate(user?.isOnboarded ? "/dashboard" : "/onboarding");
+        authStore?.checkLoginStatus();
+        navigate("/onboarding");
       }
-    } finally {
-      isProcessingGoogle.current = false;
-    }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-
-    if (!validate()) return;
-
-    const response = await loginStore.login(email, password);
-
-    if (response?.success && response?.data?.status === 200) {
-      const user = response.data.user;
-
-      authStore.setUser(user);
-
-      navigate(user?.isOnboarded ? "/dashboard" : "/onboarding");
-    }
-  };
-
-  const handleGoogleLogin = () => {
-    openGoogleLogin((code) => {
-      handleGoogleAuthSuccess(code);
     });
   };
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-    if (code) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-      handleGoogleAuthSuccess(code);
-      return;
-    }
-
-    const handleMessage = (event) => {
-      if (event.data?.type === "GOOGLE_AUTH_SUCCESS") {
-        handleGoogleAuthSuccess(event.data.code);
-      }
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-400 px-4">
@@ -97,6 +64,7 @@ const Login = observer(() => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="text-sm text-gray-600">Email</label>
+
               <InputField
                 name="email"
                 type="email"
@@ -157,11 +125,13 @@ const Login = observer(() => {
               onClick={handleGoogleLogin}
               className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 shadow-sm hover:bg-gray-100 transition"
             >
-              <img
-                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                alt="google"
-                className="w-5 h-5"
-              />
+              <span className="text-lg font-bold text-red-500">
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="google"
+                  className="w-5 h-5"
+                />
+              </span>
             </button>
           </div>
 
