@@ -8,11 +8,6 @@ const generateToken = (id) => {
   });
 };
 
-const redirectUri =
-  process.env.NODE_ENV === "production"
-    ? "https://recordio-naveen.netlify.app/auth/callback"
-    : "http://localhost:3000/auth/callback";
-
 export const googleAuth = async (req, res) => {
   try {
     const { code } = req.body;
@@ -21,7 +16,7 @@ export const googleAuth = async (req, res) => {
       code,
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: redirectUri,
+      redirect_uri: "https://recordio-naveen.netlify.app/auth/callback",
       grant_type: "authorization_code",
     });
 
