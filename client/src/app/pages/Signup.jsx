@@ -43,7 +43,8 @@ const Signup = observer(() => {
         localStorage.setItem("user", JSON.stringify(user));
         authStore.setUser(user);
         await authStore.checkLoginStatus();
-        navigate("/onboarding");
+        const isOnboarded = res.data.user?.isOnboarded;
+        navigate(isOnboarded ? "/dashboard" : "/onboarding");
       }
     } finally {
       isProcessingGoogle.current = false;

@@ -36,7 +36,8 @@ const Login = observer(() => {
         localStorage.setItem("user", JSON.stringify(user));
         authStore.setUser(user);
         await authStore.checkLoginStatus();
-        navigate("/onboarding");
+        const isOnboarded = res.data.user?.isOnboarded;
+        navigate(isOnboarded ? "/dashboard" : "/onboarding");
       }
     } finally {
       isProcessingGoogle.current = false;
@@ -65,7 +66,7 @@ const Login = observer(() => {
     if (code) {
       window.history.replaceState({}, document.title, window.location.pathname);
       handleGoogleAuthSuccess(code);
-      return; 
+      return;
     }
 
     const handleMessage = (event) => {
@@ -94,7 +95,8 @@ const Login = observer(() => {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  if (errors.email) setErrors((prev) => ({ ...prev, email: false }));
+                  if (errors.email)
+                    setErrors((prev) => ({ ...prev, email: false }));
                 }}
                 error={errors.email && "Email is required"}
               />
@@ -109,14 +111,17 @@ const Login = observer(() => {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  if (errors.password) setErrors((prev) => ({ ...prev, password: false }));
+                  if (errors.password)
+                    setErrors((prev) => ({ ...prev, password: false }));
                 }}
                 error={errors.password && "Password is required"}
               />
             </div>
 
             {loginStore.error && (
-              <p className="text-red-500 text-sm text-center">{loginStore.error}</p>
+              <p className="text-red-500 text-sm text-center">
+                {loginStore.error}
+              </p>
             )}
 
             <Button
