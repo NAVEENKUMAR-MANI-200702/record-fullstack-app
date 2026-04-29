@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Signup from "../pages/Signup";
 import Login from "../pages/Login";
@@ -8,11 +8,23 @@ import PublicRoute from "./PublicRoute";
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "../pages/Dashboard";
 import AuthCallback from "../pages/AuthCallback";
+import PageLoader from "../components/common/PageLoader";
 
 const AppRoutes = () => {
-  useEffect(() => {
-    authStore.checkLoginStatus();
+    const [isAppReady, setIsAppReady] = useState(false);
+
+   useEffect(() => {
+    const initAuth = async () => {
+      await authStore.checkLoginStatus();
+      setIsAppReady(true);
+    };
+
+    initAuth();
   }, []);
+
+  if (!isAppReady) {
+    return <PageLoader />;
+  }
 
   return (
     <Routes>
