@@ -7,6 +7,7 @@ import authStore from "../store/auth/authStore";
 import PublicRoute from "./PublicRoute";
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "../pages/Dashboard";
+import AuthCallback from "../pages/AuthCallback";
 
 const AppRoutes = () => {
   useEffect(() => {
@@ -16,6 +17,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route element={<PublicRoute restricted={true} />}>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

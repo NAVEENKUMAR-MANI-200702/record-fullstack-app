@@ -23,6 +23,13 @@ export class AuthStore {
       : localStorage.removeItem("authToken");
   }
 
+   setUser(user) {
+    this.user = user;
+    this.isLoggedIn = true;
+
+    localStorage.setItem("user", JSON.stringify(user));
+  }
+
   async checkLoginStatus() {
     this.setState({ loading: true, error: null });
 

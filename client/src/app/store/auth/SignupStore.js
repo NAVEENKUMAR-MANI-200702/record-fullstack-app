@@ -10,7 +10,7 @@ export class SignupStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  async signup(name,email, password) {
+  async signup(name, email, password) {
     this.loading = true;
     this.error = null;
     this.signupData = null;
@@ -18,7 +18,7 @@ export class SignupStore {
     const response = await MakeApiCall({
       url: URLS.register,
       method: "POST",
-      data: {name, email, password },
+      data: { name, email, password },
     });
 
     runInAction(() => {
@@ -26,12 +26,28 @@ export class SignupStore {
       if (response?.success && response?.data?.status === 201) {
         this.signupData = response.data.response;
       } else {
-        this.error = response?.data?.message || response?.message || "Signup failed";
+        this.error =
+          response?.data?.message || response?.message || "Signup failed";
       }
     });
 
     return response;
   }
+
+  async googleLogin(code) {
+  try {
+    const response = await MakeApiCall({
+      url: "http://localhost:9000/api/auth/google",
+      method: "POST",
+      data: { code },
+    });
+
+    return response?.data || response;
+  } catch (error) {
+    this.error = "Google login failed";
+    return null;
+  }
+}
 
   resetSignupState() {
     runInAction(() => {

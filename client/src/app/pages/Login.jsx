@@ -5,6 +5,8 @@ import loginStore from "../store/auth/LoginStore";
 import authStore from "../store/auth/authStore";
 import { InputField } from "../components/ui/InputField";
 import { Button } from "../components/ui/button";
+import { openGoogleLogin } from "../../utils/googleLogin";
+import signupStore from "../store/auth/SignupStore";
 
 const Login = observer(() => {
   const [email, setEmail] = useState("");
@@ -32,6 +34,24 @@ const Login = observer(() => {
       navigate("/onboarding");
       authStore.checkLoginStatus();
     }
+  };
+
+  const handleGoogleLogin = () => {
+    openGoogleLogin(async (code) => {
+      console.log("AUTH CODE:", code);
+
+      const res = await signupStore.googleLogin(code);
+
+      if (res?.success) {
+        const { user, token } = res.data;
+
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+
+        authStore.setUser(user);
+        navigate("/onboarding");
+      }
+    });
   };
 
   return (
@@ -99,7 +119,22 @@ const Login = observer(() => {
             <div className="flex-grow h-px bg-gray-300"></div>
           </div>
 
-          <p className="text-center text-sm text-gray-500">
+          <div className="mt-4 flex justify-center">
+            <button
+              onClick={handleGoogleLogin}
+              className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 shadow-sm hover:bg-gray-100 transition"
+            >
+              <span className="text-lg font-bold text-red-500">
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt="google"
+                  className="w-5 h-5"
+                />
+              </span>
+            </button>
+          </div>
+
+          <p className="text-center text-sm text-gray-500 mt-4">
             Need an account?{" "}
             <span
               className="text-blue-600 cursor-pointer hover:underline"

@@ -6,7 +6,6 @@ import React, {
 } from "react";
 import { observer } from "mobx-react-lite";
 import formStore from "../../store/formStore";
-// import { InputField } from "../ui/FormFields";
 import authStore from "../../store/auth/authStore";
 import { SelectField } from "../ui/SelectField";
 import { InputField } from "../ui/InputField";
@@ -56,9 +55,9 @@ const Step1 = observer(
       setForm((prev) => ({
         ...prev,
         ...data,
-        name: data?.name || authStore.userObj?.name || "",
+        name: data?.name || authStore.userObj?.name || prev.name || "",
       }));
-    }, [formStore.formData]);
+    }, [formStore.formData, authStore.userObj]);
 
     const handleChange = (e) => {
       const { name, value } = e.target;

@@ -43,7 +43,6 @@ const Onboarding = observer(() => {
       if (!saved) return;
     }
     formStore.nextStep();
-    console.log("progress", progress);
   };
 
   const handleBack = async () => {
