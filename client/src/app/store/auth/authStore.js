@@ -1,5 +1,6 @@
 import { makeAutoObservable, runInAction } from "mobx";
 import { MakeApiCall, URLS } from "../../../utils/ApiUrl";
+import formStore from "../formStore";
 
 export class AuthStore {
   isLoggedIn = false;
@@ -23,9 +24,14 @@ export class AuthStore {
       : localStorage.removeItem("authToken");
   }
 
-   setUser(user) {
-    this.user = user;
-    this.isLoggedIn = true;
+  setUser(user) {
+    runInAction(() => {
+      this.userObj = user;
+      this.isLoggedIn = true;
+
+      const id = user._id || user.id;
+      formStore.setUserId(id);
+    });
 
     localStorage.setItem("user", JSON.stringify(user));
   }
@@ -53,6 +59,9 @@ export class AuthStore {
           userDetails: loggedIn ? response?.data?.response : {},
         });
         this.setAuthToken(loggedIn ? response?.data?.response?.token : null);
+        const id =
+          response.data.response.user._id || response.data.response.user.id;
+        formStore.setUserId(id);
       });
     } catch (error) {
       this.setState({

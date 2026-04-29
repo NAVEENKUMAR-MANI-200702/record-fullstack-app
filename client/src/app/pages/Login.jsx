@@ -49,6 +49,7 @@ const Login = observer(() => {
         localStorage.setItem("user", JSON.stringify(user));
 
         authStore.setUser(user);
+        authStore?.checkLoginStatus();
         navigate("/onboarding");
       }
     });

@@ -7,7 +7,6 @@ import { Button } from "../components/ui/button";
 import { openGoogleLogin } from "../../utils/googleLogin";
 import authStore from "../store/auth/authStore";
 
-
 const Signup = observer(() => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,6 +39,9 @@ const Signup = observer(() => {
 
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
+        
+        authStore.setUser(user);
+        authStore?.checkLoginStatus();
 
         navigate("/onboarding");
       }

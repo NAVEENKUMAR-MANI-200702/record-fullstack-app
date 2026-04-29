@@ -39,6 +39,12 @@ class FormStore {
     }
   }
 
+  setUserId(id) {
+    runInAction(() => {
+      this.userId = id;
+    });
+  }
+
   nextStep() {
     if (this.currentStep < this.TOTAL_STEPS) {
       this.currentStep++;

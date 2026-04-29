@@ -44,6 +44,7 @@ export class LoginStore {
   logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("step");
     runInAction(() => {
       this.loginData = null;
       this.error = null;
