@@ -17,6 +17,7 @@
     "axios": "^1.15.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "copy-webpack-plugin": "^14.0.0",
     "lucide-react": "^1.12.0",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
