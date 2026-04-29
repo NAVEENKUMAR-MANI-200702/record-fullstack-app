@@ -8,7 +8,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "bundle.js",
-    clean: true,
+    publicPath: "/",
   },
 
   devServer: {
@@ -41,7 +41,8 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./public/index.html",
-       publicPath: "/",
+      publicPath: "/",
+      inject: "body",
     }),
     new webpack.DefinePlugin({
       "process.env": JSON.stringify(process.env),
