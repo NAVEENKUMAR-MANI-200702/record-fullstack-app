@@ -16,6 +16,7 @@ const Signup = observer(() => {
     password: false,
     username: false,
   });
+
   const navigate = useNavigate();
   const isProcessingGoogle = useRef(false);
 
@@ -34,17 +35,19 @@ const Signup = observer(() => {
     isProcessingGoogle.current = true;
 
     try {
-      localStorage.removeItem("token");
       const res = await signupStore.googleLogin(code);
 
       if (res?.success) {
         const { user, token } = res.data;
+
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
+
         authStore.setUser(user);
-        await authStore.checkLoginStatus();
-        const isOnboarded = res.data.user?.isOnboarded;
-        navigate(isOnboarded ? "/dashboard" : "/onboarding");
+
+        console.log("Signup Google User:", user);
+
+        navigate(user?.isOnboarded ? "/dashboard" : "/onboarding");
       }
     } finally {
       isProcessingGoogle.current = false;
@@ -60,7 +63,9 @@ const Signup = observer(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
+
     const response = await signupStore.signup(username, email, password);
+
     if (response?.success && response?.data?.status === 201) {
       navigate("/login");
     }
@@ -69,8 +74,10 @@ const Signup = observer(() => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
-    if (code) {
+
+    if (code && !window.opener) {
       window.history.replaceState({}, document.title, window.location.pathname);
+
       handleGoogleAuthSuccess(code);
       return;
     }
@@ -82,7 +89,10 @@ const Signup = observer(() => {
     };
 
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
   }, []);
 
   return (
@@ -108,6 +118,7 @@ const Signup = observer(() => {
                 error={errors.username && "Username is required"}
               />
             </div>
+
             <div>
               <label className="text-sm text-gray-600">Email</label>
               <InputField

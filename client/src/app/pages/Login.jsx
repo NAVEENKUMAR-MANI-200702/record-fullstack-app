@@ -30,14 +30,17 @@ const Login = observer(() => {
 
     try {
       const res = await signupStore.googleLogin(code);
+
       if (res?.success) {
         const { user, token } = res.data;
+
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
+
         authStore.setUser(user);
-        await authStore.checkLoginStatus();
-        const isOnboarded = res.data.user?.isOnboarded;
-        navigate(isOnboarded ? "/dashboard" : "/onboarding");
+        console.log("FINAL USER:", user);
+
+        navigate(user?.isOnboarded ? "/dashboard" : "/onboarding");
       }
     } finally {
       isProcessingGoogle.current = false;
@@ -46,11 +49,17 @@ const Login = observer(() => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
     if (!validate()) return;
+
     const response = await loginStore.login(email, password);
+
     if (response?.success && response?.data?.status === 200) {
-      navigate("/onboarding");
-      authStore.checkLoginStatus();
+      const user = response.data.user;
+
+      authStore.setUser(user);
+
+      navigate(user?.isOnboarded ? "/dashboard" : "/onboarding");
     }
   };
 
