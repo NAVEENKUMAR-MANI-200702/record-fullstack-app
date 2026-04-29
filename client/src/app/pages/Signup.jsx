@@ -2,20 +2,28 @@ import React, { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import signupStore from "../store/auth/SignupStore";
+import { InputField } from "../components/ui/InputField";
+import { Button } from "../components/ui/button";
 
 const Signup = observer(() => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState({ email: false, password: false });
+  const [username, setUsername] = useState("");
+  const [errors, setErrors] = useState({
+    email: false,
+    password: false,
+    username: false,
+  });
   const navigate = useNavigate();
 
   const validate = () => {
     const newErrors = {
       email: !email.trim(),
       password: !password.trim(),
+      username: !username.trim(),
     };
     setErrors(newErrors);
-    return !newErrors.email && !newErrors.password;
+    return !newErrors.email && !newErrors.password && !newErrors.username;
   };
 
   const handleSubmit = async (e) => {
@@ -23,7 +31,7 @@ const Signup = observer(() => {
 
     if (!validate()) return;
 
-    const response = await signupStore.signup(email, password);
+    const response = await signupStore.signup( username,email, password);
 
     if (response?.success && response?.data?.status === 201) {
       navigate("/login");
@@ -40,47 +48,49 @@ const Signup = observer(() => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
+              <label className="text-sm text-gray-600">Username</label>
+              <InputField
+                name="username"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  if (errors.username)
+                    setErrors((prev) => ({ ...prev, username: false }));
+                }}
+                error={errors.username && "Username is required"}
+              />
+            </div>
+            <div>
               <label className="text-sm text-gray-600">Email</label>
-              <input
+              <InputField
+                name="email"
                 type="email"
-                className={`w-full border rounded-md px-3 py-2 mt-1 outline-none focus:ring-2 ${
-                  errors.email
-                    ? "border-red-500 focus:ring-red-400"
-                    : "focus:ring-pink-400"
-                }`}
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   if (errors.email)
                     setErrors((prev) => ({ ...prev, email: false }));
                 }}
+                error={errors.email && "Email is required"}
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">Email is required</p>
-              )}
             </div>
 
             <div>
               <label className="text-sm text-gray-600">Password</label>
-              <input
+              <InputField
+                name="password"
                 type="password"
-                className={`w-full border rounded-md px-3 py-2 mt-1 outline-none focus:ring-2 ${
-                  errors.password
-                    ? "border-red-500 focus:ring-red-400"
-                    : "focus:ring-pink-400"
-                }`}
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (errors.password)
                     setErrors((prev) => ({ ...prev, password: false }));
                 }}
+                error={errors.password && "Password is required"}
               />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">
-                  Password is required
-                </p>
-              )}
             </div>
 
             {signupStore.error && (
@@ -89,13 +99,13 @@ const Signup = observer(() => {
               </p>
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={signupStore.loading}
-              className="w-full bg-pink-500 text-white py-2 rounded-md hover:bg-pink-600 transition disabled:opacity-60"
+              className="w-full bg-pink-500 hover:bg-pink-600 transition disabled:opacity-60"
             >
               {signupStore.loading ? "Creating account..." : "SIGN UP"}
-            </button>
+            </Button>
           </form>
 
           <div className="flex items-center my-4">

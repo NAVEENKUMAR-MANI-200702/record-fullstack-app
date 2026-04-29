@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { forwardRef, useImperativeHandle } from "react";
 import formStore from "../../store/formStore";
+import { Checkbox } from "../ui/checkbox";
 
 const options = [
   "Build my Skill Repository",
@@ -20,6 +21,13 @@ const Step2 = observer(
 
     useImperativeHandle(ref, () => ({
       async save() {
+        if (selected.length === 0) {
+          formStore.validationError = "Please select at least one goal";
+          return false;
+        }
+
+        formStore.validationError = null;
+
         const res = await formStore.saveStep("step2", {
           goals: selected,
         });
@@ -36,10 +44,18 @@ const Step2 = observer(
     }, [formStore.formData]);
 
     const toggleOption = (option) => {
+      let updated;
+
       if (selected.includes(option)) {
-        setSelected(selected.filter((item) => item !== option));
+        updated = selected.filter((item) => item !== option);
       } else {
-        setSelected([...selected, option]);
+        updated = [...selected, option];
+      }
+
+      setSelected(updated);
+
+      if (updated.length > 0) {
+        formStore.validationError = null;
       }
     };
 
@@ -61,19 +77,18 @@ const Step2 = observer(
             <div className="text-lg font-semibold mb-4">
               What's your main goal?
             </div>
+
             <div className="space-y-3">
               {options.map((option, index) => (
                 <label
                   key={index}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition"
+                  className="flex items-center gap-1 rounded-xl hover:bg-slate-50 cursor-pointer transition"
                 >
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     checked={selected.includes(option)}
-                    onChange={() => toggleOption(option)}
-                    className="w-5 h-5 rounded cursor-pointer accent-black"
+                    onCheckedChange={() => toggleOption(option)}
                   />
-                  <span className="text-slate-900">{option}</span>
+                  <span className="text-slate-900 pl-2">{option}</span>
                 </label>
               ))}
             </div>

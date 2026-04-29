@@ -10,7 +10,7 @@ export class SignupStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  async signup(email, password) {
+  async signup(name,email, password) {
     this.loading = true;
     this.error = null;
     this.signupData = null;
@@ -18,7 +18,7 @@ export class SignupStore {
     const response = await MakeApiCall({
       url: URLS.register,
       method: "POST",
-      data: { email, password },
+      data: {name, email, password },
     });
 
     runInAction(() => {

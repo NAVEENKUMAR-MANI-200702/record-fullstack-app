@@ -3,6 +3,8 @@ import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import loginStore from "../store/auth/LoginStore";
 import authStore from "../store/auth/authStore";
+import { InputField } from "../components/ui/InputField";
+import { Button } from "../components/ui/button";
 
 const Login = observer(() => {
   const [email, setEmail] = useState("");
@@ -41,46 +43,35 @@ const Login = observer(() => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="text-sm text-gray-600">Email</label>
-              <input
+
+              <InputField
+                name="email"
                 type="email"
-                className={`w-full border rounded-md px-3 py-2 mt-1 focus:outline-none focus:ring-2 ${
-                  errors.email
-                    ? "border-red-500 focus:ring-red-400"
-                    : "focus:ring-pink-400"
-                }`}
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
                   if (errors.email)
                     setErrors((prev) => ({ ...prev, email: false }));
                 }}
+                error={errors.email && "Email is required"}
               />
-              {errors.email && (
-                <p className="text-red-500 text-xs mt-1">Email is required</p>
-              )}
             </div>
 
             <div>
               <label className="text-sm text-gray-600">Password</label>
-              <input
+              <InputField
+                name="password"
                 type="password"
-                className={`w-full border rounded-md px-3 py-2 mt-1 focus:outline-none focus:ring-2 ${
-                  errors.password
-                    ? "border-red-500 focus:ring-red-400"
-                    : "focus:ring-pink-400"
-                }`}
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (errors.password)
                     setErrors((prev) => ({ ...prev, password: false }));
                 }}
+                error={errors.password && "Password is required"}
               />
-              {errors.password && (
-                <p className="text-red-500 text-xs mt-1">
-                  Password is required
-                </p>
-              )}
             </div>
 
             {loginStore.error && (
@@ -89,13 +80,13 @@ const Login = observer(() => {
               </p>
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={loginStore.loading}
-              className="w-full bg-pink-500 text-white py-2 rounded-md hover:bg-pink-600 transition disabled:opacity-60"
+              className="w-full bg-pink-500 hover:bg-pink-600 transition disabled:opacity-60"
             >
               {loginStore.loading ? "Logging in..." : "LOGIN"}
-            </button>
+            </Button>
           </form>
 
           <p className="text-right text-sm text-gray-400 mt-2 cursor-pointer">

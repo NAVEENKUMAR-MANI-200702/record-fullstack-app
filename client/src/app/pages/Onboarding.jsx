@@ -43,6 +43,7 @@ const Onboarding = observer(() => {
       if (!saved) return;
     }
     formStore.nextStep();
+    console.log("progress", progress);
   };
 
   const handleBack = async () => {
@@ -66,13 +67,14 @@ const Onboarding = observer(() => {
   }, []);
 
   const isSuccessScreen = formStore.currentStep === 6;
-  const progress = Math.round((formStore.currentStep / TOTAL_STEPS) * 100);
+  const progress = Math.round(
+    ((formStore.currentStep - 1) / TOTAL_STEPS) * 100,
+  );
 
   return (
     <div className="h-screen flex flex-col bg-[#F9FAFB] overflow-hidden">
       {!isSuccessScreen && (
         <header className="w-full bg-white border-b border-gray-100 px-3 sm:px-6 py-3 sm:py-4 flex items-center gap-3 sm:gap-8">
-          {/* Back Button */}
           <div className="w-16 sm:w-24 shrink-0">
             {formStore.currentStep > 1 && (
               <button
@@ -86,7 +88,6 @@ const Onboarding = observer(() => {
             )}
           </div>
 
-          {/* Progress Track */}
           <div className="flex-1 relative py-4 sm:py-6">
             <div className="h-1 sm:h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
               <div
@@ -96,7 +97,10 @@ const Onboarding = observer(() => {
             </div>
             <div
               className="absolute top-0 transition-all duration-500 ease-out"
-              style={{ left: `calc(${progress}% - 12px)` }}
+              style={{
+                left: `${progress}%`,
+                transform: "translateX(-50%)",
+              }}
             >
               <Sailboat
                 size={16}
@@ -117,9 +121,9 @@ const Onboarding = observer(() => {
 
       {!isSuccessScreen && (
         <footer className="bg-black border-t border-gray-100 p-3 sm:p-4 flex justify-end items-center gap-3 sm:gap-6">
-          {formStore.error && (
+          {(formStore.error || formStore.validationError) && (
             <span className="text-red-500 text-xs sm:text-sm animate-pulse">
-              {formStore.error}
+              {formStore.validationError || formStore.error}
             </span>
           )}
           <div className="flex items-center gap-2 sm:gap-4">

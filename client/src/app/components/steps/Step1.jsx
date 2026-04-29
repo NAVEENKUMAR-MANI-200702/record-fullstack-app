@@ -6,7 +6,10 @@ import React, {
 } from "react";
 import { observer } from "mobx-react-lite";
 import formStore from "../../store/formStore";
-import { SelectField, InputField } from "../ui/FormFields";
+// import { InputField } from "../ui/FormFields";
+import authStore from "../../store/auth/authStore";
+import { SelectField } from "../ui/SelectField";
+import { InputField } from "../ui/InputField";
 
 const SELECT_FIELDS = [
   {
@@ -49,7 +52,12 @@ const Step1 = observer(
 
     useEffect(() => {
       const data = formStore.formData?.step1;
-      if (data) setForm((prev) => ({ ...prev, ...data }));
+
+      setForm((prev) => ({
+        ...prev,
+        ...data,
+        name: data?.name || authStore.userObj?.name || "",
+      }));
     }, [formStore.formData]);
 
     const handleChange = (e) => {

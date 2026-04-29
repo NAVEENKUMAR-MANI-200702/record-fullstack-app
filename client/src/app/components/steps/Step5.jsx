@@ -7,6 +7,7 @@ import React, {
 import { observer } from "mobx-react-lite";
 import formStore from "../../store/formStore";
 import profileImageStore from "../../store/ProfileImageStore";
+import { Checkbox } from "../ui/checkbox";
 
 const Step5 = observer(
   forwardRef((props, ref) => {
@@ -39,10 +40,19 @@ const Step5 = observer(
     }));
 
     const validate = () => {
-      const newErrors = {};
-      if (!jobStatus) newErrors.jobStatus = "Please select your job status";
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
+      let errorMessage = "";
+
+      if (!preview && !image) {
+        errorMessage = "Please add a profile image";
+      } else if (!jobStatus) {
+        errorMessage = "Please select your job status";
+      }
+
+      setErrors({ jobStatus: !jobStatus });
+
+      formStore.error = errorMessage;
+
+      return !errorMessage;
     };
 
     const handleImageChange = (e) => {
@@ -50,6 +60,8 @@ const Step5 = observer(
       if (file) {
         setImage(file);
         setPreview(URL.createObjectURL(file));
+
+        formStore.error = null;
       }
     };
 
@@ -135,17 +147,16 @@ const Step5 = observer(
                   key={val}
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition"
                 >
-                  <input
-                    type="radio"
-                    name="job-status"
-                    value={val}
+                  <Checkbox
                     checked={jobStatus === val}
-                    onChange={(e) => {
-                      setJobStatus(e.target.value);
-                      if (errors.jobStatus) setErrors({});
+                    onCheckedChange={() => {
+                      setJobStatus(val);
+
+                      setErrors({});
+                      formStore.error = null;
                     }}
-                    className="w-4 h-4 accent-black"
                   />
+
                   <span className="text-slate-900 text-sm">
                     {val === "yes"
                       ? "Yes, actively seeking"
@@ -154,10 +165,6 @@ const Step5 = observer(
                 </label>
               ))}
             </div>
-
-            {errors.jobStatus && (
-              <p className="text-red-500 text-xs mt-1">{errors.jobStatus}</p>
-            )}
           </div>
         </div>
       </div>

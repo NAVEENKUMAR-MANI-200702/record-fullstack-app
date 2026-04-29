@@ -12,12 +12,14 @@ const generateToken = (id) => {
 
 export const registerUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password || !name) {
       return res
         .status(400)
-        .json(APIResponse.failure(400, "Email and Password are required"));
+        .json(
+          APIResponse.failure(400, "Email, name and Password are required"),
+        );
     }
 
     const userExists = await User.findOne({ email });
@@ -32,6 +34,7 @@ export const registerUser = async (req, res) => {
 
     const user = await User.create({
       email,
+      name,
       password: hashedPassword,
     });
 
@@ -41,6 +44,7 @@ export const registerUser = async (req, res) => {
           user: {
             id: user._id,
             email: user.email,
+            name: user.name,
           },
           token: generateToken(user._id),
         },
@@ -101,7 +105,7 @@ export const isLoggedIn = async (req, res) => {
       user: req.user,
       completed: form?.completed || false,
       imageUrl: form?.step5?.imageUrl || null,
-      name: form?.step1?.name || null,
+      name: req.user?.name || null,
       username: form?.step1?.username || null,
     }),
   );

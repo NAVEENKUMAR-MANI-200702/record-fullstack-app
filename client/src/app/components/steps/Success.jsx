@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import formStore from "../../store/formStore";
+import authStore from "../../store/auth/authStore";
 
 const Success = () => {
   const navigate = useNavigate();
@@ -9,6 +10,7 @@ const Success = () => {
     const success = await formStore.completeOnboarding();
 
     if (success) {
+      await authStore.checkLoginStatus();
       navigate("/dashboard");
     } else {
       console.error("Failed to complete onboarding");

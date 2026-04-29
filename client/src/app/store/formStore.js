@@ -19,6 +19,7 @@ class FormStore {
   saving = false;
   error = null;
   userId = null;
+  validationError = null;
 
   constructor() {
     makeAutoObservable(this, {}, { autoBind: true });
@@ -32,17 +33,23 @@ class FormStore {
         console.error("Failed to parse user from localStorage:", e);
       }
     }
+    const savedStep = localStorage.getItem("step");
+    if (savedStep) {
+      this.currentStep = Number(savedStep);
+    }
   }
 
   nextStep() {
     if (this.currentStep < this.TOTAL_STEPS) {
       this.currentStep++;
+      localStorage.setItem("step", this.currentStep);
     }
   }
 
   prevStep() {
     if (this.currentStep <= 1) return;
     this.currentStep--;
+    localStorage.setItem("step", this.currentStep);
   }
 
   async saveStep(stepKey, stepData) {
@@ -108,7 +115,15 @@ class FormStore {
       },
     });
 
-    return res?.success;
+    console.log("Complete onboarding response:", res);
+
+    const success = res?.data?.status === 200;
+
+    runInAction(() => {
+      this.isOnboardingCompleted = success;
+    });
+
+    return success;
   }
 
   getStepData(step) {
@@ -116,7 +131,7 @@ class FormStore {
   }
 
   get progress() {
-    return Math.round((this.currentStep / this.TOTAL_STEPS) * 100);
+    return Math.round(((this.currentStep - 1) / this.TOTAL_STEPS) * 100);
   }
 
   reset() {
@@ -129,6 +144,7 @@ class FormStore {
       this.userId = null;
     });
     localStorage.removeItem("user");
+    localStorage.removeItem("step");
   }
 }
 

@@ -17,6 +17,14 @@ const Step4 = observer(
 
     useImperativeHandle(ref, () => ({
       async save() {
+        if (selected.length !== 5) {
+          formStore.validationError =
+            "Please select 5 skills to continue";
+          return false;
+        }
+
+        formStore.validationError = null;
+
         return await formStore.saveStep("step4", { skills: selected });
       },
     }));
@@ -27,10 +35,20 @@ const Step4 = observer(
     }, [formStore.formData]);
 
     const toggleSkill = (skill) => {
+      let updated;
+
       if (selected.includes(skill)) {
-        setSelected(selected.filter((s) => s !== skill));
+        updated = selected.filter((s) => s !== skill);
       } else if (selected.length < 5) {
-        setSelected([...selected, skill]);
+        updated = [...selected, skill];
+      } else {
+        return;
+      }
+
+      setSelected(updated);
+
+      if (updated.length === 5) {
+        formStore.validationError = null;
       }
     };
 
