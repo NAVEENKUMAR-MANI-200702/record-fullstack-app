@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import loginStore from "../store/auth/LoginStore";
@@ -13,6 +13,7 @@ const Login = observer(() => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({ email: false, password: false });
   const navigate = useNavigate();
+  const isProcessingGoogle = useRef(false);
 
   const validate = () => {
     const newErrors = {
@@ -23,13 +24,29 @@ const Login = observer(() => {
     return !newErrors.email && !newErrors.password;
   };
 
+  const handleGoogleAuthSuccess = async (code) => {
+    if (isProcessingGoogle.current) return;
+    isProcessingGoogle.current = true;
+
+    try {
+      const res = await signupStore.googleLogin(code);
+      if (res?.success) {
+        const { user, token } = res.data;
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        authStore.setUser(user);
+        await authStore.checkLoginStatus();
+        navigate("/onboarding");
+      }
+    } finally {
+      isProcessingGoogle.current = false;
+    }
+  };
+
   const handleLogin = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
-
     const response = await loginStore.login(email, password);
-
     if (response?.success && response?.data?.status === 200) {
       navigate("/onboarding");
       authStore.checkLoginStatus();
@@ -37,69 +54,28 @@ const Login = observer(() => {
   };
 
   const handleGoogleLogin = () => {
-    openGoogleLogin(async (code) => {
-
-      const res = await signupStore.googleLogin(code);
-
-      if (res?.success) {
-        const { user, token } = res.data;
-
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-
-        authStore.setUser(user);
-        await authStore?.checkLoginStatus();
-        navigate("/onboarding");
-      }
+    openGoogleLogin((code) => {
+      handleGoogleAuthSuccess(code);
     });
   };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
-
     if (code) {
-      console.log("Google redirect code:", code);
-
-      signupStore.googleLogin(code).then((res) => {
-        if (res?.success) {
-          const { user, token } = res.data;
-
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
-
-          authStore.setUser(user);
-          authStore.checkLoginStatus();
-
-          navigate("/onboarding");
-        }
-      });
+      window.history.replaceState({}, document.title, window.location.pathname);
+      handleGoogleAuthSuccess(code);
+      return; 
     }
 
-    // popup listener (desktop)
     const handleMessage = (event) => {
       if (event.data?.type === "GOOGLE_AUTH_SUCCESS") {
-        signupStore.googleLogin(event.data.code).then((res) => {
-          if (res?.success) {
-            const { user, token } = res.data;
-
-            localStorage.setItem("token", token);
-            localStorage.setItem("user", JSON.stringify(user));
-
-            authStore.setUser(user);
-            authStore.checkLoginStatus();
-
-            navigate("/onboarding");
-          }
-        });
+        handleGoogleAuthSuccess(event.data.code);
       }
     };
 
     window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
+    return () => window.removeEventListener("message", handleMessage);
   }, []);
 
   return (
@@ -111,7 +87,6 @@ const Login = observer(() => {
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="text-sm text-gray-600">Email</label>
-
               <InputField
                 name="email"
                 type="email"
@@ -119,8 +94,7 @@ const Login = observer(() => {
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
-                  if (errors.email)
-                    setErrors((prev) => ({ ...prev, email: false }));
+                  if (errors.email) setErrors((prev) => ({ ...prev, email: false }));
                 }}
                 error={errors.email && "Email is required"}
               />
@@ -135,17 +109,14 @@ const Login = observer(() => {
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
-                  if (errors.password)
-                    setErrors((prev) => ({ ...prev, password: false }));
+                  if (errors.password) setErrors((prev) => ({ ...prev, password: false }));
                 }}
                 error={errors.password && "Password is required"}
               />
             </div>
 
             {loginStore.error && (
-              <p className="text-red-500 text-sm text-center">
-                {loginStore.error}
-              </p>
+              <p className="text-red-500 text-sm text-center">{loginStore.error}</p>
             )}
 
             <Button
@@ -172,13 +143,11 @@ const Login = observer(() => {
               onClick={handleGoogleLogin}
               className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 shadow-sm hover:bg-gray-100 transition"
             >
-              <span className="text-lg font-bold text-red-500">
-                <img
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                  alt="google"
-                  className="w-5 h-5"
-                />
-              </span>
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="google"
+                className="w-5 h-5"
+              />
             </button>
           </div>
 

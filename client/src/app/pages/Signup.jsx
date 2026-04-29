@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import signupStore from "../store/auth/SignupStore";
@@ -17,6 +17,7 @@ const Signup = observer(() => {
     username: false,
   });
   const navigate = useNavigate();
+  const isProcessingGoogle = useRef(false);
 
   const validate = () => {
     const newErrors = {
@@ -28,33 +29,37 @@ const Signup = observer(() => {
     return !newErrors.email && !newErrors.password && !newErrors.username;
   };
 
-  const handleGoogleLogin = () => {
-    openGoogleLogin(async (code) => {
+  const handleGoogleAuthSuccess = async (code) => {
+    if (isProcessingGoogle.current) return;
+    isProcessingGoogle.current = true;
+
+    try {
       localStorage.removeItem("token");
       const res = await signupStore.googleLogin(code);
 
-      console.log("GOOGLE RES:", res);
-
       if (res?.success) {
         const { user, token } = res.data;
-
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-
         authStore.setUser(user);
-        await authStore?.checkLoginStatus();
+        await authStore.checkLoginStatus();
         navigate("/onboarding");
       }
+    } finally {
+      isProcessingGoogle.current = false;
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    openGoogleLogin((code) => {
+      handleGoogleAuthSuccess(code);
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validate()) return;
-
     const response = await signupStore.signup(username, email, password);
-
     if (response?.success && response?.data?.status === 201) {
       navigate("/login");
     }
@@ -63,48 +68,20 @@ const Signup = observer(() => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
-
     if (code) {
-      console.log("Google redirect code:", code);
-
-      signupStore.googleLogin(code).then((res) => {
-        if (res?.success) {
-          const { user, token } = res.data;
-
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
-
-          authStore.setUser(user);
-          authStore.checkLoginStatus();
-
-          navigate("/onboarding");
-        }
-      });
+      window.history.replaceState({}, document.title, window.location.pathname);
+      handleGoogleAuthSuccess(code);
+      return;
     }
 
     const handleMessage = (event) => {
       if (event.data?.type === "GOOGLE_AUTH_SUCCESS") {
-        signupStore.googleLogin(event.data.code).then((res) => {
-          if (res?.success) {
-            const { user, token } = res.data;
-
-            localStorage.setItem("token", token);
-            localStorage.setItem("user", JSON.stringify(user));
-
-            authStore.setUser(user);
-            authStore.checkLoginStatus();
-
-            navigate("/onboarding");
-          }
-        });
+        handleGoogleAuthSuccess(event.data.code);
       }
     };
 
     window.addEventListener("message", handleMessage);
-
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
+    return () => window.removeEventListener("message", handleMessage);
   }, []);
 
   return (
@@ -188,13 +165,11 @@ const Signup = observer(() => {
               onClick={handleGoogleLogin}
               className="flex items-center justify-center w-12 h-12 rounded-full border-2 border-red-500 shadow-sm hover:bg-gray-100 transition"
             >
-              <span className="text-lg font-bold text-red-500">
-                <img
-                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
-                  alt="google"
-                  className="w-5 h-5"
-                />
-              </span>
+              <img
+                src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                alt="google"
+                className="w-5 h-5"
+              />
             </button>
           </div>
 
