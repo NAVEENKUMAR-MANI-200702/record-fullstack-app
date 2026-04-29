@@ -35,19 +35,19 @@ export class SignupStore {
   }
 
   async googleLogin(code) {
-  try {
-    const response = await MakeApiCall({
-      url: "http://localhost:9000/api/auth/google",
-      method: "POST",
-      data: { code },
-    });
+    try {
+      const response = await MakeApiCall({
+        url: URLS.googleOAuth,
+        method: "POST",
+        data: { code },
+      });
 
-    return response?.data || response;
-  } catch (error) {
-    this.error = "Google login failed";
-    return null;
+      return response?.data || response;
+    } catch (error) {
+      this.error = "Google login failed";
+      return null;
+    }
   }
-}
 
   resetSignupState() {
     runInAction(() => {

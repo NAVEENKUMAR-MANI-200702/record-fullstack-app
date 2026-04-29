@@ -10,6 +10,7 @@ const URLS = {
   getForm: (userId) => `${SERVER_URL}/api/form/${userId}`,
   getSkills: `${SERVER_URL}/api/skills`,
   completeForm: `${SERVER_URL}/api/form/complete`,
+  googleOAuth: `${SERVER_URL}/api/auth/google`,
 };
 
 const MakeApiCall = async (config) => {
