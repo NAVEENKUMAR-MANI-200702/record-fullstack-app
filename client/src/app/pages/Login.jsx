@@ -1,4 +1,4 @@
-import React, { useState ,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
 import loginStore from "../store/auth/LoginStore";
@@ -26,6 +26,10 @@ const Login = observer(() => {
   const handleLogin = async (e) => {
     e.preventDefault();
 
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    authStore.setUser(null);
+
     if (!validate()) return;
 
     const response = await loginStore.login(email, password);
@@ -38,7 +42,9 @@ const Login = observer(() => {
 
   const handleGoogleLogin = () => {
     openGoogleLogin(async (code) => {
-      console.log("AUTH CODE:", code);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      authStore.setUser(null);
 
       const res = await signupStore.googleLogin(code);
 
