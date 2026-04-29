@@ -55,6 +55,54 @@ const Login = observer(() => {
     });
   };
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+
+    if (code) {
+      console.log("Google redirect code:", code);
+
+      signupStore.googleLogin(code).then((res) => {
+        if (res?.success) {
+          const { user, token } = res.data;
+
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+
+          authStore.setUser(user);
+          authStore.checkLoginStatus();
+
+          navigate("/onboarding");
+        }
+      });
+    }
+
+    // popup listener (desktop)
+    const handleMessage = (event) => {
+      if (event.data?.type === "GOOGLE_AUTH_SUCCESS") {
+        signupStore.googleLogin(event.data.code).then((res) => {
+          if (res?.success) {
+            const { user, token } = res.data;
+
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(user));
+
+            authStore.setUser(user);
+            authStore.checkLoginStatus();
+
+            navigate("/onboarding");
+          }
+        });
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-400 px-4">
       <div className="rounded-xl w-full max-w-md md:max-w-lg">
